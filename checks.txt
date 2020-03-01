@@ -1,0 +1,98 @@
+/users
+  POST
+    400 content-type other than null or application/json[;encoding=utf8]
+    400 no content-length
+    400 can't parse json
+    400 missing email
+    400 email must be string
+    400 email too long
+    400 missing password
+    400 password must be string
+    400 identity with given email already exists
+    200 check response format
+    200 content-type: application/json
+    200 content-type: application/json;encoding=utf8
+    200 content-type: null
+  other
+    405
+/tokens
+  POST
+    400 content-type other than null or application/json[;encoding=utf8]
+    400 no content-length
+    400 can't parse json
+    400 missing email
+    400 email must be string
+    400 email too long
+    400 missing password
+    400 password must be string
+    400 invalid/missing lifetime
+    400 invalid credentials (missing email)
+    400 invalid credentials (wrong password)
+    200 check response format
+    200 no-expiration
+    200 remember-me
+    200 until-idle
+    200 content-type: application/json
+    200 content-type: application/json;encoding=utf8
+    200 content-type: null
+  GET
+    200 check response format, at least one token (current)
+  other
+    405
+/tokens/current
+  GET
+    200 check response format
+  DELETE
+    200 check response format
+  other
+    405
+/tokens/current/valid
+  GET
+    200 empty response
+  other
+    405
+/tokens/current/refresh
+  POST
+    200 check response format
+  other
+    405
+/tokens/<id>
+  GET
+    404 invalid or expired token id
+    200 check response format
+  DELETE
+    404 invalid or expired token id
+    400 reject current token id
+    200 check response format
+  other
+    405
+
+404 /users/*
+404 /tokens/<not-id-or-"current">
+404 /tokens/current/<not-"valid"-or-"refresh">
+404 /tokens/current/valid/*
+404 /tokens/current/refresh/*
+404 /tokens/<id>/*
+
+for all auth routes
+  401 missing token cookie
+  401 multiple token cookies
+  401 invalid token cookie format
+  401 invalid or expired token
+active token limit
+deleted/expired tokens
+  when
+    token deleted
+    remember-me expires
+    until-idle is idle
+    until-idle expires?
+  then
+    401 for auth routes
+    404 GET /tokens/<id> 
+    404 DELETE /tokens/<id> 
+    200 GET /tokens - deleted token gone
+other users' tokens
+  200 GET /tokens - not listed
+  400 GET /tokens/<id>
+  400 DELETE /tokens/<id>
+
