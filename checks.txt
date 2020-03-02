@@ -1,15 +1,18 @@
+o: started
+x: complete
+
 /users
   POST
-    400 no content-length
-    400 content-type other than null or application/json[;encoding=utf8]
-    400 can't parse json
+  o 400 "no content-length" or "no body"
+  o 400 content-type other than null or application/json[;encoding=utf8]
+  o 400 can't parse json
     400 missing email
     400 email must be string
     400 email too long
     400 missing password
     400 password must be string
     400 identity with given email already exists
-    200 check response format
+  o 200 check response format
     200 content-type: application/json
     200 content-type: application/json;encoding=utf8
     200 content-type: null
