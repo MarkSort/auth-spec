@@ -1,7 +1,7 @@
 /users
   POST
-    400 content-type other than null or application/json[;encoding=utf8]
     400 no content-length
+    400 content-type other than null or application/json[;encoding=utf8]
     400 can't parse json
     400 missing email
     400 email must be string
