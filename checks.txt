@@ -1,3 +1,5 @@
+Errors should attempt to check the body to see if the correct error case is mentioned.
+
 o: started
 x: complete
 
