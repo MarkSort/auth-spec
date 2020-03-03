@@ -5,7 +5,7 @@ x: complete
 
 /users
   POST
-  o 400 "no content-length" or "no body"
+  x 400 "no content-length" or "no body"
   o 400 content-type other than null or application/json[;encoding=utf8]
   o 400 can't parse json
     400 missing email
