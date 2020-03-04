@@ -6,8 +6,8 @@ x: complete
 /users
   POST
   x 400 "no content-length" or "no body"
-  o 400 content-type other than null or application/json[;encoding=utf8]
-  o 400 can't parse json
+  x 400 content-type other than null or application/json[;encoding=utf8]
+  x 400 can't parse json
     400 missing email
     400 email must be string
     400 email too long

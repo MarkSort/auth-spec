@@ -6,28 +6,16 @@ async fn main() {
 
     c.path = "/users";
 
-    let (json_response, other_response) = c.post_no_body("no body/content-length").await;
-    if let Some(json_response) = json_response {
-        if let Some(error) = c.get_property_string(json_response, "email") {
-            let error = error.to_lowercase();
-            c.check(
-                error.contains("body") || error.contains("content-length"),
-                format!("json 'error' property does not mention 'body' or 'content-length'")
-            );
-        }
-    } else if let Some(other_response) = other_response {
-        let other_response = other_response.to_lowercase();
-        c.check(
-            other_response.contains("body") || other_response.contains("content-length"),
-            format!("body does not mention 'body' or 'content-length'")
-        );
-    } else {
-        c.fail("no body in response".into());
-    }
+    let response = c.post_no_body("no body/content-length").await;
+    c.check_error_response_multi(response, vec!["body", "content-length"]);
 
-    c.post_bad_content_type("content-type other than null or application/json").await;
+    let response = c.post_bad_content_type(
+        "content-type other than null or application/json"
+    ).await;
+    c.check_error_response(response, "content-type");
 
-    c.post("can't parse json", "not json".into(), StatusCode::BAD_REQUEST).await;
+    let response = c.post("can't parse json", "not json".into(), StatusCode::BAD_REQUEST).await;
+    c.check_error_response(response, "parse");
 
     let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
     let (json_response, _) = c.post(
@@ -159,6 +147,50 @@ impl Checks {
         } else {
             (None, Some("body".into()))
         }
+    }
+
+    fn check_error_response(
+        &mut self,
+        response: (Option<serde_json::Value>, Option<String>),
+        needle: &str,
+    ) {
+        self.check_error_response_multi(response, vec![needle])
+    }
+
+
+    fn check_error_response_multi(
+        &mut self,
+        response: (Option<serde_json::Value>, Option<String>),
+        needles: Vec<&str>,
+    ) {
+        let (json_response, other_response) = response;
+        if let Some(json_response) = json_response {
+            if let Some(error) = self.get_property_string(json_response, "email") {
+                self.check_contains_one("json 'error' property", error, needles);
+            }
+        } else if let Some(other_response) = other_response {
+            self.check_contains_one("body", other_response, needles);
+        } else {
+            self.fail("no body in response".into());
+        }
+    }
+
+    fn check_contains_one(&mut self, prefix: &str, haystack: String, needles: Vec<&str>) -> bool {
+        let haystack = haystack.to_lowercase();
+        if needles.len() == 1 {
+            return self.check(
+                haystack.contains(&needles[0]),
+                format!("{} does not mention '{}'", prefix, needles[0])
+            )
+        }
+        for needle in needles.clone() {
+            if haystack.contains(&needle) {
+                self.pass(1);
+                return true
+            }
+        }
+        self.fail(format!("{} does not mention one of: {}", prefix, needles.join(", ")));
+        false
     }
 
     async fn check_json_content_type(&mut self, response: Response<Body>) -> Option<serde_json::Value> {
