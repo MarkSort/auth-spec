@@ -6,6 +6,7 @@ async fn main() {
 
     c.path = "/users";
 
+    // error cases
     let response = c.post_no_body("no body/content-length").await;
     c.check_error_response_multi(response, vec!["body", "content-length"]);
 
@@ -17,6 +18,11 @@ async fn main() {
     let response = c.post("can't parse json", "not json".into(), StatusCode::BAD_REQUEST).await;
     c.check_error_response(response, "parse");
 
+    let response = c.post( "missing email", r#"{}"#.into(), StatusCode::BAD_REQUEST).await;
+    c.check_error_response(response, "email");
+    
+
+    // success cases
     let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
     let (json_response, _) = c.post(
         "correct response format",
