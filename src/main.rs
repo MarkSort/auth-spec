@@ -29,17 +29,18 @@ async fn main() {
 
     c.post("can't parse json", "not json".into(), StatusCode::BAD_REQUEST).await;
 
+    let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
     let (json_response, _) = c.post(
         "correct response format",
-        r#"{"email":"test1234@example.com","password":"password"}"#.into(),
+        format!(r#"{{"email":"{}","password":"password"}}"#, email_1),
         StatusCode::OK,
     ).await;
 
     if let Some(json_response) = json_response {
         if let Some(email) = c.get_property_string(json_response, "email") {
             c.check(
-                email == "test1234@example.com",
-                format!("expected email to be 'test1234@example.com' but got '{}'", email)
+                email == email_1,
+                format!("expected email to be '{}' but got '{}'", email_1, email)
             );
         }
     } else {
@@ -47,7 +48,7 @@ async fn main() {
     }
 
 
-    println!("{} Passed / {} Failed", c.passed, c.failed);
+    println!("\n{} Passed / {} Failed", c.passed, c.failed);
 }
 
 struct Checks {
