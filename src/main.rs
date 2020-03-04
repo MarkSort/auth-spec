@@ -165,7 +165,7 @@ impl Checks {
     ) {
         let (json_response, other_response) = response;
         if let Some(json_response) = json_response {
-            if let Some(error) = self.get_property_string(json_response, "email") {
+            if let Some(error) = self.get_property_string(json_response, "error") {
                 self.check_contains_one("json 'error' property", error, needles);
             }
         } else if let Some(other_response) = other_response {
