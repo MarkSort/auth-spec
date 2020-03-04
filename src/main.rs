@@ -212,8 +212,8 @@ impl Checks {
                     return None
                 } else {
                     self.check(
-                        content_type_parts.len() == 2 && content_type_parts[1] == "encoding=utf8",
-                        "content-type missing 'encoding=utf8' or has too many parts".into(),
+                        content_type_parts.len() == 2 && content_type_parts[1] == "charset=utf-8",
+                        "content-type missing 'charset=utf-8' or has too many parts".into(),
                     );
                 }
 
