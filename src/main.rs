@@ -180,7 +180,7 @@ impl Checks {
         if needles.len() == 1 {
             return self.check(
                 haystack.contains(&needles[0]),
-                format!("{} does not mention '{}'", prefix, needles[0])
+                format!("{} does not mention '{}': '{}'", prefix, needles[0], haystack)
             )
         }
         for needle in needles.clone() {
@@ -189,7 +189,7 @@ impl Checks {
                 return true
             }
         }
-        self.fail(format!("{} does not mention one of: {}", prefix, needles.join(", ")));
+        self.fail(format!("{} does not mention one of '{}': '{}'", prefix, needles.join(", "), haystack));
         false
     }
 
