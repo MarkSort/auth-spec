@@ -59,10 +59,10 @@ impl Checks {
             if let Some(value) = property_value.as_str() {
                 return Some(value.to_string())
             } else {
-                self.fail("json 'error' property is not a string".into());
+                self.fail(format!("json '{}' property is not a string", name));
             }
         } else {
-            self.fail("json does not have an 'error' property".into());
+            self.fail(format!("json does not have an '{}' property: {:?}", name, json));
         }
         None
     }
