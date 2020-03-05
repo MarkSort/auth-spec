@@ -20,7 +20,10 @@ async fn main() {
 
     let response = c.post( "missing email", r#"{}"#.into(), StatusCode::BAD_REQUEST).await;
     c.check_error_response(response, "email");
-    
+
+    let response = c.post( "email must be string", r#"{}"#.into(), StatusCode::BAD_REQUEST).await;
+    c.check_error_response(response, "string");
+
 
     // success cases
     let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
