@@ -15,7 +15,7 @@ pub struct Checker {
 }
 
 impl Checker {
-    pub fn get_property_string(&mut self, json: serde_json::Value, name: &'static str) -> Option<String> {
+    pub fn get_property_string(&mut self, json: &serde_json::Value, name: &'static str) -> Option<String> {
         if let Some(property_value) = json.get(name) {
             if let Some(value) = property_value.as_str() {
                 return Some(value.to_string())
@@ -28,7 +28,7 @@ impl Checker {
         None
     }
 
-    pub fn get_property_i64(&mut self, json: serde_json::Value, name: &'static str) -> Option<i64> {
+    pub fn get_property_i64(&mut self, json: &serde_json::Value, name: &'static str) -> Option<i64> {
         if let Some(property_value) = json.get(name) {
             if let Some(value) = property_value.as_i64() {
                 return Some(value)
@@ -196,7 +196,7 @@ impl Checker {
     ) {
         let (json_response, other_response) = response;
         if let Some(json_response) = json_response {
-            if let Some(error) = self.get_property_string(json_response, "error") {
+            if let Some(error) = self.get_property_string(&json_response, "error") {
                 self.check_contains_one("json 'error' property", error, needles);
             }
         } else if let Some(other_response) = other_response {

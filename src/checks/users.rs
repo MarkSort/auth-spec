@@ -66,13 +66,13 @@ pub async fn check_users(c: &mut crate::checker::Checker) {
     ).await;
 
     if let Some(json_response) = json_response {
-        if let Some(email) = c.get_property_string(json_response.clone(), "email") {
+        if let Some(email) = c.get_property_string(&json_response, "email") {
             c.check(
                 email == email_1,
                 format!("expected email to be '{}' but got '{}'", email_1, email)
             );
         }
-        c.get_property_i64(json_response, "id");
+        c.get_property_i64(&json_response, "id");
     } else {
         c.fail("response is not json".into());
     }
