@@ -73,6 +73,21 @@ impl Checker {
         self.check_response(response, expected_status).await
     }
 
+    pub async fn get_with_token(&mut self, group: &'static str, token_secret: String, expected_status: StatusCode) -> (Option<serde_json::Value>, Option<String>) {
+        self.group = group;
+        self.method = Method::GET;
+        let response = self.client.request(
+            Request::builder()
+                .method(Method::GET)
+                .uri(format!("{}{}", self.base_url, self.path))
+                .header("cookie", format!("token={}", token_secret))
+                .body(Body::empty())
+                .unwrap()
+        ).await.unwrap();
+
+        self.check_response(response, expected_status).await
+    }
+
     pub async fn delete(&mut self, group: &'static str, expected_status: StatusCode) -> (Option<serde_json::Value>, Option<String>) {
         self.group = group;
         self.method = Method::DELETE;

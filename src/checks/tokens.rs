@@ -100,12 +100,18 @@ pub async fn check_tokens(c: &mut crate::checker::Checker) {
         format!(r#"{{"email":"{}", "password": "password", "lifetime": "no-expiration" }}"#, email_1),
         StatusCode::OK
     ).await;
+    let mut token_1 = None;
     if let Some(json_response) = json_response {
-        c.get_property_string(json_response.clone(), "id");
-        c.get_property_string(json_response.clone(), "secret");
-        c.get_property_string(json_response.clone(), "lifetime");
-        c.get_property_i64(json_response.clone(), "created");
-        c.get_property_i64(json_response.clone(), "last_active");
+        if let Some(id) = c.get_property_string(&json_response, "id") {
+            if let Some(secret) = c.get_property_string(&json_response, "secret") {
+                token_1 = Some(Token{ id, secret });
+            }
+        } else {
+            c.get_property_string(&json_response, "secret");
+        }
+        c.get_property_string(&json_response, "lifetime");
+        c.get_property_i64(&json_response, "created");
+        c.get_property_i64(&json_response, "last_active");
     } else {
         c.fail("response is not json".into());
     }
@@ -148,4 +154,40 @@ pub async fn check_tokens(c: &mut crate::checker::Checker) {
         StatusCode::OK
     ).await;
 
+    if let Some(token_1) = token_1 {
+        let (json_response, _) = c.get_with_token("correct response format", token_1.secret, StatusCode::OK).await;
+        if let Some(json_response) = json_response {
+
+            if let Some(property_value) = json_response.get("tokens") {
+                if let Some(tokens) = property_value.as_array() {
+                    c.check(tokens.len() == 6, "incorrect number of tokens returned".into());
+
+                    let mut token_1_found = false;
+                    for token in tokens {
+                        if let Some(token_id) = c.get_property_string(token, "id") {
+                            if token_1.id == token_id {
+                                token_1_found = true;
+                            }
+                        }
+                        c.get_property_string(token, "lifetime");
+                        c.get_property_i64(token, "created");
+                        c.get_property_i64(token, "last_active");
+                    }
+                    c.check(token_1_found, "current token not found in list of tokens".into());
+                } else {
+                    c.fail(format!("json '{}' property is not an array", "tokens"));
+                }
+            } else {
+                c.fail(format!("json does not have a '{}' property: {:?}", "tokens", json_response));
+            }
+
+        } else {
+            c.fail("response is not json".into());
+        }
+    }
+}
+
+struct Token {
+    id: String,
+    secret: String
 }

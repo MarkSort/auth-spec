@@ -35,7 +35,7 @@ x: complete
   x 400 invalid lifetime
   x 400 invalid credentials (unknown email)
   x 400 invalid credentials (wrong password)
-  o 200 correct response format
+  x 200 correct response format
   x 200 lifetime: no-expiration
   x 200 lifetime: remember-me
   x 200 lifetime: until-idle
@@ -43,7 +43,7 @@ x: complete
   x 200 content-type: application/json;charset=utf-8
   x 200 no content-type
   GET
-    200 correct response format, at least one token (current)
+  x 200 correct response format, at least one token (current)
   other
   x 405
 /tokens/current
