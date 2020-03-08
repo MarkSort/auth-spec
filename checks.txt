@@ -14,12 +14,12 @@ x: complete
   x 400 missing password
   x 400 password must be string
   x 400 identity with given email already exists
-  o 200 check response format
+  x 200 check response format
   x 200 content-type: application/json
   x 200 content-type: application/json;encoding=utf8
   x 200 content-type: null
   other
-    405
+  x 405
 /tokens
   POST
     400 content-type other than null or application/json[;encoding=utf8]

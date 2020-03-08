@@ -56,6 +56,9 @@ async fn main() {
     ).await;
     c.check_error_response(response, "in use");
 
+    let response = c.get("method not allowed", StatusCode::METHOD_NOT_ALLOWED).await;
+    c.check_error_response(response, "method");
+
 
     // success cases
     let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
@@ -66,12 +69,13 @@ async fn main() {
     ).await;
 
     if let Some(json_response) = json_response {
-        if let Some(email) = c.get_property_string(json_response, "email") {
+        if let Some(email) = c.get_property_string(json_response.clone(), "email") {
             c.check(
                 email == email_1,
                 format!("expected email to be '{}' but got '{}'", email_1, email)
             );
         }
+        c.get_property_i64(json_response, "id");
     } else {
         c.fail("response is not json".into());
     }
@@ -127,7 +131,20 @@ impl Checks {
                 self.fail(format!("json '{}' property is not a string", name));
             }
         } else {
-            self.fail(format!("json does not have an '{}' property: {:?}", name, json));
+            self.fail(format!("json does not have a '{}' property: {:?}", name, json));
+        }
+        None
+    }
+
+    fn get_property_i64(&mut self, json: serde_json::Value, name: &'static str) -> Option<i64> {
+        if let Some(property_value) = json.get(name) {
+            if let Some(value) = property_value.as_i64() {
+                return Some(value)
+            } else {
+                self.fail(format!("json '{}' property is not an integer", name));
+            }
+        } else {
+            self.fail(format!("json does not have a '{}' property: {:?}", name, json));
         }
         None
     }
@@ -148,6 +165,20 @@ impl Checks {
     fn fail(&mut self, description: String) {
         self.failed = self.failed + 1;
         println!("Failed: {} {} - {} - {}", self.method, self.path, self.group, description);
+    }
+
+    async fn get(&mut self, group: &'static str, expected_status: StatusCode) -> (Option<serde_json::Value>, Option<String>) {
+        self.group = group;
+        self.method = Method::GET;
+        let response = self.client.request(
+            Request::builder()
+                .method(Method::GET)
+                .uri(format!("{}{}", self.base_url, self.path))
+                .body(Body::empty())
+                .unwrap()
+        ).await.unwrap();
+
+        self.check_response(response, expected_status).await
     }
 
     async fn post_no_body(&mut self, group: &'static str) -> (Option<serde_json::Value>, Option<String>) {
