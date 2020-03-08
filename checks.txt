@@ -6,7 +6,7 @@ x: complete
 /users
   POST
   x 400 "no content-length" or "no body"
-  x 400 content-type other than null or application/json[;encoding=utf8]
+  x 400 content-type other than null or application/json[;charset=utf-8]
   x 400 can't parse json
   x 400 missing email
   x 400 email must be string
@@ -14,10 +14,10 @@ x: complete
   x 400 missing password
   x 400 password must be string
   x 400 identity with given email already exists
-  x 200 check response format
+  x 200 correct response format
   x 200 content-type: application/json
-  x 200 content-type: application/json;encoding=utf8
-  x 200 content-type: null
+  x 200 content-type: application/json;charset=utf-8
+  x 200 no content-type
   other
   x 405
 /tokens
@@ -43,14 +43,14 @@ x: complete
   x 200 content-type: application/json;charset=utf-8
   x 200 no content-type
   GET
-    200 check response format, at least one token (current)
+    200 correct response format, at least one token (current)
   other
   x 405
 /tokens/current
   GET
-    200 check response format
+    200 correct response format
   DELETE
-    200 check response format
+    200 correct response format
   other
     405
 /tokens/current/valid
@@ -60,17 +60,17 @@ x: complete
     405
 /tokens/current/refresh
   POST
-    200 check response format
+    200 correct response format
   other
     405
 /tokens/<id>
   GET
     404 invalid or expired token id
-    200 check response format
+    200 correct response format
   DELETE
     404 invalid or expired token id
     400 reject current token id
-    200 check response format
+    200 correct response format
   other
     405
 
