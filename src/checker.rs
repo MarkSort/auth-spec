@@ -73,6 +73,20 @@ impl Checker {
         self.check_response(response, expected_status).await
     }
 
+    pub async fn delete(&mut self, group: &'static str, expected_status: StatusCode) -> (Option<serde_json::Value>, Option<String>) {
+        self.group = group;
+        self.method = Method::DELETE;
+        let response = self.client.request(
+            Request::builder()
+                .method(Method::DELETE)
+                .uri(format!("{}{}", self.base_url, self.path))
+                .body(Body::empty())
+                .unwrap()
+        ).await.unwrap();
+
+        self.check_response(response, expected_status).await
+    }
+
     pub async fn post_no_body(&mut self, group: &'static str) -> (Option<serde_json::Value>, Option<String>) {
         self.group = group;
         self.method = Method::POST;

@@ -22,28 +22,30 @@ x: complete
   x 405
 /tokens
   POST
-    400 content-type other than null or application/json[;encoding=utf8]
-    400 no content-length
-    400 can't parse json
-    400 missing email
-    400 email must be string
-    400 email too long
-    400 missing password
-    400 password must be string
-    400 invalid/missing lifetime
-    400 invalid credentials (missing email)
-    400 invalid credentials (wrong password)
-    200 check response format
-    200 no-expiration
-    200 remember-me
-    200 until-idle
-    200 content-type: application/json
-    200 content-type: application/json;encoding=utf8
-    200 content-type: null
+  x 400 "no content-length" or "no body"
+  x 400 content-type other than null or application/json[;charset=utf-8]
+  x 400 can't parse json
+  x 400 missing email
+  x 400 email must be string
+  x 400 email too long
+  x 400 missing password
+  x 400 password must be string
+  x 400 missing lifetime
+  x 400 lifetime must be string
+  x 400 invalid lifetime
+  x 400 invalid credentials (unknown email)
+  x 400 invalid credentials (wrong password)
+  o 200 correct response format
+  x 200 lifetime: no-expiration
+  x 200 lifetime: remember-me
+  x 200 lifetime: until-idle
+  x 200 content-type: application/json
+  x 200 content-type: application/json;charset=utf-8
+  x 200 no content-type
   GET
     200 check response format, at least one token (current)
   other
-    405
+  x 405
 /tokens/current
   GET
     200 check response format
