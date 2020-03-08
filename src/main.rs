@@ -21,8 +21,40 @@ async fn main() {
     let response = c.post( "missing email", r#"{}"#.into(), StatusCode::BAD_REQUEST).await;
     c.check_error_response(response, "email");
 
-    let response = c.post( "email must be string", r#"{}"#.into(), StatusCode::BAD_REQUEST).await;
+    let response = c.post( "email must be string", r#"{"email":123}"#.into(), StatusCode::BAD_REQUEST).await;
     c.check_error_response(response, "string");
+
+    let mut long_email: String = "".into();
+    for _ in 0..14 {
+        long_email = long_email + "01234567890";
+    }
+    long_email = long_email + "@example.com";
+    let response = c.post("email too long", format!(r#"{{"email":"{}"}}"#, long_email), StatusCode::BAD_REQUEST).await;
+    c.check_error_response(response, "150");
+
+    let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
+
+    let response = c.post("missing password", format!(r#"{{"email":"{}"}}"#, email_1), StatusCode::BAD_REQUEST).await;
+    c.check_error_response(response, "password");
+
+    let response = c.post(
+        "password must be string",
+        format!(r#"{{ "email": "{}", "password": 123 }}"#, email_1),
+        StatusCode::BAD_REQUEST
+    ).await;
+    c.check_error_response(response, "string");
+
+    c.post(
+        "identity with given email already exists - create",
+        format!(r#"{{"email":"{}","password":"password"}}"#, email_1),
+        StatusCode::OK,
+    ).await;
+    let response = c.post(
+        "identity with given email already exists - check",
+        format!(r#"{{"email":"{}","password":"password"}}"#, email_1),
+        StatusCode::BAD_REQUEST
+    ).await;
+    c.check_error_response(response, "in use");
 
 
     // success cases
@@ -43,6 +75,30 @@ async fn main() {
     } else {
         c.fail("response is not json".into());
     }
+
+    let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
+    c.post_content_type(
+        "correct response format",
+        "application/json",
+        format!(r#"{{"email":"{}","password":"password"}}"#, email_1),
+        StatusCode::OK,
+    ).await;
+
+    let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
+    c.post_content_type(
+        "correct response format",
+        "application/json;encoding=utf8",
+        format!(r#"{{"email":"{}","password":"password"}}"#, email_1),
+        StatusCode::OK,
+    ).await;
+
+    let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
+    c.post_no_content_type(
+        "correct response format",
+        format!(r#"{{"email":"{}","password":"password"}}"#, email_1),
+        StatusCode::OK,
+    ).await;
+
 
 
     println!("\n{} Passed / {} Failed", c.passed, c.failed);
@@ -131,6 +187,35 @@ impl Checks {
                 .method(Method::POST)
                 .uri(format!("{}{}", self.base_url, self.path))
                 .header("content-type", "application/json")
+                .body(Body::from(body))
+                .unwrap()
+        ).await.unwrap();
+
+        self.check_response(response, expected_status).await
+    }
+
+    async fn post_content_type(&mut self, group: &'static str, content_type: &'static str, body: String, expected_status: StatusCode) -> (Option<serde_json::Value>, Option<String>) {
+        self.group = group;
+        self.method = Method::POST;
+        let response = self.client.request(
+            Request::builder()
+                .method(Method::POST)
+                .uri(format!("{}{}", self.base_url, self.path))
+                .header("content-type", content_type)
+                .body(Body::from(body))
+                .unwrap()
+        ).await.unwrap();
+
+        self.check_response(response, expected_status).await
+    }
+
+    async fn post_no_content_type(&mut self, group: &'static str, body: String, expected_status: StatusCode) -> (Option<serde_json::Value>, Option<String>) {
+        self.group = group;
+        self.method = Method::POST;
+        let response = self.client.request(
+            Request::builder()
+                .method(Method::POST)
+                .uri(format!("{}{}", self.base_url, self.path))
                 .body(Body::from(body))
                 .unwrap()
         ).await.unwrap();

@@ -9,15 +9,15 @@ x: complete
   x 400 content-type other than null or application/json[;encoding=utf8]
   x 400 can't parse json
   x 400 missing email
-    400 email must be string
-    400 email too long
-    400 missing password
-    400 password must be string
-    400 identity with given email already exists
+  x 400 email must be string
+  x 400 email too long
+  x 400 missing password
+  x 400 password must be string
+  x 400 identity with given email already exists
   o 200 check response format
-    200 content-type: application/json
-    200 content-type: application/json;encoding=utf8
-    200 content-type: null
+  x 200 content-type: application/json
+  x 200 content-type: application/json;encoding=utf8
+  x 200 content-type: null
   other
     405
 /tokens
