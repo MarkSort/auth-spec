@@ -1,4 +1,4 @@
-use hyper::{StatusCode};
+use hyper::StatusCode;
 
 pub async fn check_users(c: &mut crate::checker::Checker) {
     c.path = "/users";
@@ -79,7 +79,7 @@ pub async fn check_users(c: &mut crate::checker::Checker) {
 
     let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
     c.post_content_type(
-        "correct response format",
+        "content-type: application/json;charset=utf-8",
         "application/json",
         format!(r#"{{"email":"{}","password":"password"}}"#, email_1),
         StatusCode::OK,
@@ -87,15 +87,15 @@ pub async fn check_users(c: &mut crate::checker::Checker) {
 
     let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
     c.post_content_type(
-        "correct response format",
-        "application/json;encoding=utf8",
+        "content-type: application/json;charset=utf-8",
+        "application/json;charset=utf-8",
         format!(r#"{{"email":"{}","password":"password"}}"#, email_1),
         StatusCode::OK,
     ).await;
 
     let email_1 = format!("test+{:0>8x}@example.com", rand::random::<u32>());
     c.post_no_content_type(
-        "correct response format",
+        "no content-type",
         format!(r#"{{"email":"{}","password":"password"}}"#, email_1),
         StatusCode::OK,
     ).await;
