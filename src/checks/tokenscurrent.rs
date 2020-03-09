@@ -79,11 +79,7 @@ pub async fn check(c: &mut crate::checker::Checker) {
             StatusCode::OK,
         ).await;
         if let Some(json_response) = json_response {
-            if c.get_property_string(&json_response, "success").is_some() {
-                c.pass(1);
-            } else {
-                c.fail("response did not include success property".into());
-            }
+            c.get_property_string(&json_response, "success");
         } else {
             c.fail("response was not json".into());
         }
