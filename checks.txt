@@ -48,11 +48,11 @@ x: complete
   x 405
 /tokens/current
   GET
-    200 correct response format
+  x 200 correct response format
   DELETE
-    200 correct response format
+  x 200 correct response format
   other
-    405
+  x 405
 /tokens/current/valid
   GET
     200 empty response

@@ -102,7 +102,22 @@ impl Checker {
         self.check_response(response, expected_status).await
     }
 
-    pub async fn post_no_body(&mut self, group: &'static str) -> (Option<serde_json::Value>, Option<String>) {
+    pub async fn delete_with_token(&mut self, group: &'static str, token_secret: String, expected_status: StatusCode) -> (Option<serde_json::Value>, Option<String>) {
+        self.group = group;
+        self.method = Method::DELETE;
+        let response = self.client.request(
+            Request::builder()
+                .method(Method::DELETE)
+                .uri(format!("{}{}", self.base_url, self.path))
+                .header("cookie", format!("token={}", token_secret))
+                .body(Body::empty())
+                .unwrap()
+        ).await.unwrap();
+
+        self.check_response(response, expected_status).await
+    }
+
+    pub async fn post_no_body(&mut self, group: &'static str, expected_status: StatusCode) -> (Option<serde_json::Value>, Option<String>) {
         self.group = group;
         self.method = Method::POST;
         let response = self.client.request(
@@ -113,7 +128,7 @@ impl Checker {
                 .unwrap()
         ).await.unwrap();
 
-        self.check_response(response, StatusCode::BAD_REQUEST).await
+        self.check_response(response, expected_status).await
     }
 
     pub async fn post_bad_content_type(&mut self, group: &'static str) -> (Option<serde_json::Value>, Option<String>) {

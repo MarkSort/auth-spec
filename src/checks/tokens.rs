@@ -1,10 +1,10 @@
 use hyper::StatusCode;
 
-pub async fn check_tokens(c: &mut crate::checker::Checker) {
+pub async fn check(c: &mut crate::checker::Checker) {
     c.path = "/tokens";
 
     // error cases
-    let response = c.post_no_body("no body/content-length").await;
+    let response = c.post_no_body("no body/content-length", StatusCode::BAD_REQUEST).await;
     c.check_error_response_multi(response, vec!["body", "content-length"]);
 
     let response = c.post_bad_content_type(
