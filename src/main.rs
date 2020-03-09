@@ -2,6 +2,7 @@ mod checker;
 mod checks {
     pub mod tokens;
     pub mod tokenscurrent;
+    pub mod tokenscurrentrefresh;
     pub mod users;
 }
 
@@ -11,6 +12,7 @@ async fn main() {
 
     checks::tokens::check(&mut c).await;
     checks::tokenscurrent::check(&mut c).await;
+    checks::tokenscurrentrefresh::check(&mut c).await;
     checks::users::check(&mut c).await;
 
     println!("\n{} Passed / {} Failed", c.passed, c.failed);
