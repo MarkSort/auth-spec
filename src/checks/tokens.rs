@@ -8,9 +8,10 @@ pub async fn check(c: &mut crate::checker::Checker) {
     c.check_error_response_multi(response, vec!["body", "content-length"]);
 
     let response = c.post_bad_content_type(
-        "content-type other than null or application/json"
+        "content-type other than null or application/json",
+        StatusCode::UNSUPPORTED_MEDIA_TYPE,
     ).await;
-    c.check_error_response(response, "content-type");
+    c.check_error_response_multi(response, vec!["content-type", "unsupported media type"]);
 
     let response = c.post("can't parse json", "not json".into(), StatusCode::BAD_REQUEST).await;
     c.check_error_response(response, "parse");
@@ -53,7 +54,7 @@ pub async fn check(c: &mut crate::checker::Checker) {
         format!(r#"{{"email":"{}","password":"password", "lifetime": 123 }}"#, email_1),
         StatusCode::BAD_REQUEST
     ).await;
-    c.check_error_response(response, "no-expiration");
+    c.check_error_response(response, "string");
 
     let response = c.post(
         "invalid lifetime",
@@ -160,7 +161,7 @@ pub async fn check(c: &mut crate::checker::Checker) {
 
             if let Some(property_value) = json_response.get("tokens") {
                 if let Some(tokens) = property_value.as_array() {
-                    c.check(tokens.len() == 6, "incorrect number of tokens returned".into());
+                    c.check(tokens.len() == 7, format!("incorrect number of tokens returned: {}", tokens.len()));
 
                     let mut token_1_found = false;
                     for token in tokens {

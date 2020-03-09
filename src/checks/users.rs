@@ -8,9 +8,10 @@ pub async fn check(c: &mut crate::checker::Checker) {
     c.check_error_response_multi(response, vec!["body", "content-length"]);
 
     let response = c.post_bad_content_type(
-        "content-type other than null or application/json"
+        "content-type other than null or application/json",
+        StatusCode::UNSUPPORTED_MEDIA_TYPE,
     ).await;
-    c.check_error_response(response, "content-type");
+    c.check_error_response_multi(response, vec!["content-type", "unsupported media type"]);
 
     let response = c.post("can't parse json", "not json".into(), StatusCode::BAD_REQUEST).await;
     c.check_error_response(response, "parse");
